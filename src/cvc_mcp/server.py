@@ -33,6 +33,18 @@ def _validate_max_results(max_results: int) -> None:
         raise ValueError(f"max_results must be between 1 and {MAX_RESULTS_LIMIT}")
 
 
+def _seat_count(value: Any) -> int | str:
+    """Normalize the numeric seat counts returned as strings by the upstream scraper."""
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, int):
+        return value
+    try:
+        return int(str(value).strip().replace(",", ""))
+    except ValueError:
+        return str(value).strip()
+
+
 def _section_to_dict(section: Any) -> dict[str, Any]:
     return {
         "semester": getattr(section, "semester", ""),
@@ -42,7 +54,7 @@ def _section_to_dict(section: Any) -> dict[str, Any]:
         "zero_textbook_cost": bool(getattr(section, "zeroTextbookCost", False)),
         "meeting_times": list(getattr(section, "time", []) or []),
         "professor": getattr(section, "prof", ""),
-        "available_seats": getattr(section, "currSeatCount", 0),
+        "available_seats": _seat_count(getattr(section, "currSeatCount", 0)),
         "tuition": getattr(section, "tuition", 0),
         "registration": getattr(section, "registration", ""),
         "section_note": getattr(section, "sectionNote", ""),
@@ -134,7 +146,7 @@ async def search_course_ids(
 
 @mcp.tool()
 async def get_course(course_id: int) -> dict[str, Any]:
-    """Get a CVC course and its currently displayed sections by numeric CVC course ID."""
+    """Get a CVC course and its sections, including available seats for each section."""
     if course_id <= 0:
         raise ValueError("course_id must be a positive integer")
     course = await _run_upstream(cvc.getCourseContentByID, course_id)

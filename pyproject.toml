@@ -1,6 +1,6 @@
 [project]
 name = "cvc-mcp"
-version = "0.1.0"
+version = "0.1.1"
 description = "MCP server for searching California Virtual Campus (CVC) online courses and sections"
 readme = "README.md"
 requires-python = ">=3.10"

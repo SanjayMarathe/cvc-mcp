@@ -53,7 +53,16 @@ def test_course_serialization() -> None:
 
     assert result["cvc_id"] == "42"
     assert result["sections"][0]["zero_textbook_cost"] is True
+    assert result["sections"][0]["available_seats"] == 12
     assert result["source_url"] == "https://search.cvc.edu/courses/42"
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [("5", 5), (" 1,234 ", 1234), (0, 0), ("unknown", "unknown")],
+)
+def test_seat_count_normalization(raw: object, expected: object) -> None:
+    assert server._seat_count(raw) == expected
 
 
 @pytest.mark.anyio

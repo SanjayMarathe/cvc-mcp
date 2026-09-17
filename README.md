@@ -30,7 +30,7 @@ Python library and public data from [CVC Course Search](https://search.cvc.edu/)
 | Tool | Description |
 |---|---|
 | `search_course_ids` | Search one college by C-ID, course symbol, or course name using CVC's public search endpoint |
-| `get_course` | Get detailed course information and currently displayed sections by CVC course ID |
+| `get_course` | Get course information, sections, and available seats per section by CVC course ID |
 | `scrape_course_ids` | Experimental headless-browser course search |
 | `scrape_courses` | Experimental headless-browser search with full course details |
 
@@ -171,6 +171,16 @@ Retrieve course details:
 }
 ```
 
+Each item in the returned `sections` array includes an integer `available_seats` value:
+
+```json
+{
+  "section": "78499",
+  "semester": "Fall 2026",
+  "available_seats": 8
+}
+```
+
 ## How it works
 
 The server uses the official Python SDK for the Model Context Protocol and delegates CVC
@@ -202,6 +212,14 @@ uv run pytest
 uv run ruff check .
 uv run ruff format --check .
 ```
+
+Run the opt-in end-to-end suite against the production deployment:
+
+```bash
+CVC_MCP_RUN_E2E=1 uv run pytest tests/e2e
+```
+
+Override `CVC_MCP_E2E_URL` to test another deployment.
 
 Run the HTTP deployment locally:
 
