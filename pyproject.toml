@@ -1,0 +1,64 @@
+[project]
+name = "cvc-mcp"
+version = "0.1.0"
+description = "MCP server for searching California Virtual Campus (CVC) online courses and sections"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Sanjay Marathe" }]
+keywords = [
+  "california-virtual-campus",
+  "cvc",
+  "mcp",
+  "model-context-protocol",
+  "claude",
+  "community-college",
+  "course-search",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+  "CaliforniaVirtualCampusAPI==0.0.2",
+  "mcp>=2.2.0,<3",
+]
+
+[project.urls]
+Homepage = "https://github.com/SanjayMarathe/cvc-mcp"
+Repository = "https://github.com/SanjayMarathe/cvc-mcp"
+Issues = "https://github.com/SanjayMarathe/cvc-mcp/issues"
+
+[project.scripts]
+cvc-mcp = "cvc_mcp.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+  "pytest>=9.0.0,<10",
+  "ruff>=0.16.0,<0.17",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cvc_mcp"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
