@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import os
+from importlib.resources import files
 
 from mcp.server.transport_security import TransportSecuritySettings
-from starlette.applications import Starlette
+from starlette.requests import Request
+from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 from cvc_mcp.server import mcp
 
@@ -27,12 +29,33 @@ def _transport_security() -> TransportSecuritySettings:
     )
 
 
-def create_app(path: str = "/mcp") -> Starlette:
-    """Create a stateless ASGI MCP app at the requested public path."""
-    return mcp.streamable_http_app(
-        streamable_http_path=path,
-        stateless_http=True,
-        json_response=True,
-        transport_security=_transport_security(),
-        host="0.0.0.0",
+@mcp.custom_route("/", methods=["GET"])
+async def documentation(_request: Request) -> HTMLResponse:
+    content = files("cvc_mcp").joinpath("index.html").read_text(encoding="utf-8")
+    return HTMLResponse(content)
+
+
+@mcp.custom_route("/docs", methods=["GET"])
+async def docs_redirect(_request: Request) -> RedirectResponse:
+    return RedirectResponse("/", status_code=307)
+
+
+@mcp.custom_route("/health", methods=["GET"])
+async def health(_request: Request) -> JSONResponse:
+    return JSONResponse(
+        {
+            "status": "ok",
+            "service": "cvc-mcp",
+            "version": mcp.version,
+            "mcp_endpoint": "/mcp",
+        }
     )
+
+
+app = mcp.streamable_http_app(
+    streamable_http_path="/mcp",
+    stateless_http=True,
+    json_response=True,
+    transport_security=_transport_security(),
+    host="0.0.0.0",
+)

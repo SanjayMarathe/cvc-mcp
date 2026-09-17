@@ -206,7 +206,7 @@ uv run ruff format --check .
 Run the HTTP deployment locally:
 
 ```bash
-uv run uvicorn cvc_mcp.http:create_app --factory --reload
+uv run uvicorn app:app --reload
 # Documentation: http://127.0.0.1:8000/
 # MCP endpoint:  http://127.0.0.1:8000/mcp
 ```
