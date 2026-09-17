@@ -9,16 +9,22 @@ import anyio
 import cvc
 from mcp.server import MCPServer
 
+from cvc_mcp import __version__
+
 SERVER_NAME = "California Virtual Campus Course Search"
 MAX_RESULTS_LIMIT = 100
 
 mcp = MCPServer(
     SERVER_NAME,
+    title="California Virtual Campus MCP Server",
+    description="Search public CVC online courses and California community college sections.",
     instructions=(
         "Search public California Virtual Campus (CVC) online course listings. "
         "Start with search_course_ids, then call get_course for detailed course and "
         "section data. Prefer the non-browser tools unless browser scraping is necessary."
     ),
+    website_url="https://github.com/SanjayMarathe/cvc-mcp",
+    version=__version__,
 )
 
 
@@ -62,10 +68,13 @@ def _course_to_dict(course: Any) -> dict[str, Any]:
     }
 
 
-async def _run_upstream(function: Any, *args: Any) -> Any:
+async def _run_upstream(function: Any, *args: Any, timeout_seconds: float = 30) -> Any:
     """Run the synchronous upstream scraper without blocking the MCP event loop."""
     try:
-        return await anyio.to_thread.run_sync(partial(function, *args))
+        with anyio.fail_after(timeout_seconds):
+            return await anyio.to_thread.run_sync(partial(function, *args), abandon_on_cancel=True)
+    except TimeoutError as exc:
+        raise RuntimeError(f"CVC request timed out after {timeout_seconds:g} seconds") from exc
     except Exception as exc:
         raise RuntimeError(f"CVC request failed: {exc}") from exc
 
@@ -92,6 +101,7 @@ async def _search_ids(
         c_id.strip(),
         course_symbol.strip(),
         course_name.strip(),
+        timeout_seconds=45 if browser else 20,
     )
     normalized = [str(course_id) for course_id in ids]
     return {

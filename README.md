@@ -23,6 +23,7 @@ Python library and public data from [CVC Course Search](https://search.cvc.edu/)
 - Limit results to protect the model context window
 - Offer optional Selenium browser-search fallbacks for difficult queries
 - Run locally over stdio; no hosted service, account, or API key required
+- Deploy as a stateless Streamable HTTP MCP server on Vercel
 
 ## MCP tools
 
@@ -102,6 +103,42 @@ computer:
 Fully quit and reopen Claude Desktop. Ask Claude to list its tools if the CVC tools do
 not appear immediately.
 
+## Hosted MCP and documentation
+
+This repository includes a Vercel-compatible Python ASGI deployment:
+
+- `/` — browsable setup and tool documentation
+- `/docs` — redirects to the documentation homepage
+- `/health` — JSON health check
+- `/mcp` — stateless Streamable HTTP MCP endpoint
+
+Deploy your own copy with the Vercel CLI:
+
+```bash
+vercel
+vercel --prod
+```
+
+Vercel supplies the deployment hostname automatically. The server uses it to enforce
+MCP host and origin checks. If you deploy through another ASGI platform, set
+`CVC_MCP_HOST` to its hostname without `https://`.
+
+Connect a remote MCP client with:
+
+```json
+{
+  "mcpServers": {
+    "cvc": {
+      "url": "https://your-project.vercel.app/mcp"
+    }
+  }
+}
+```
+
+The hosted MCP endpoint is public and read-only. No API key is required. The
+`scrape_*` tools require Chrome and therefore are intended for local use; use
+`search_course_ids` and `get_course` on Vercel.
+
 ## Example prompts for Claude
 
 - “Search CVC for online computer science courses at Pasadena City College.”
@@ -162,6 +199,14 @@ uv run ruff check .
 uv run ruff format --check .
 ```
 
+Run the HTTP deployment locally:
+
+```bash
+uv run uvicorn cvc_mcp.http:app --reload
+# Documentation: http://127.0.0.1:8000/
+# MCP endpoint:  http://127.0.0.1:8000/mcp
+```
+
 ## Data source and attribution
 
 Course data is provided by [California Virtual Campus](https://www.cvc.edu/) and is
@@ -174,4 +219,3 @@ MCP server's original code is available under the [MIT License](LICENSE).
 California Virtual Campus API, CVC API, CVC Exchange, CVC Course Finder, California
 community college online courses, California online classes, Claude Desktop MCP server,
 Model Context Protocol course search, community college course availability.
-
