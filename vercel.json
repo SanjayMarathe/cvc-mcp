@@ -2,9 +2,16 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/api/index.py"
+      "source": "/mcp",
+      "destination": "/api/mcp"
+    },
+    {
+      "source": "/health",
+      "destination": "/api/health"
+    },
+    {
+      "source": "/docs",
+      "destination": "/"
     }
   ]
 }
-

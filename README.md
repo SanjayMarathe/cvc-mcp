@@ -139,6 +139,10 @@ The hosted MCP endpoint is public and read-only. No API key is required. The
 `scrape_*` tools require Chrome and therefore are intended for local use; use
 `search_course_ids` and `get_course` on Vercel.
 
+Production deployment: **[cvc-mcp.vercel.app](https://cvc-mcp.vercel.app/)**
+
+Streamable HTTP endpoint: **`https://cvc-mcp.vercel.app/mcp`**
+
 ## Example prompts for Claude
 
 - “Search CVC for online computer science courses at Pasadena City College.”
@@ -202,7 +206,7 @@ uv run ruff format --check .
 Run the HTTP deployment locally:
 
 ```bash
-uv run uvicorn cvc_mcp.http:app --reload
+uv run uvicorn cvc_mcp.http:create_app --factory --reload
 # Documentation: http://127.0.0.1:8000/
 # MCP endpoint:  http://127.0.0.1:8000/mcp
 ```
